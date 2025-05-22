@@ -2,6 +2,7 @@ import requests
 import json
 import sys
 import os
+from datetime import datetime
 from time import sleep
 from bs4 import BeautifulSoup
 import pandas as pd
@@ -101,6 +102,8 @@ def extract_game_data(appid, app_data):
 
 
 def main():
+    today = datetime.today().strftime('%Y%m%d_%H%M%S')
+    formated_date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
     dataset_steam = []
     top_played_games = get_top_played_games(10)
     
@@ -131,6 +134,8 @@ def main():
                     log.warning(f"Could not fetch average players count for appid {appid}: {e}")
                     filtered_data['avg_players_two_weeks'] = None
 
+                filtered_data['extract_date'] = formated_date
+
                 dataset_steam.append(filtered_data)
                 log.info(f"Successfully processed: {filtered_data['game_name']}")
             else:
@@ -140,7 +145,7 @@ def main():
             log.error(f"Error processing appid {appid}: {e}")
             continue
 
-    with open('steam_top_games.json', 'w', encoding='utf-8') as f:
+    with open(f'steam_top_games_{today}.json', 'w', encoding='utf-8') as f:
         json.dump(dataset_steam, f, ensure_ascii=False, indent=2)
     
     log.info(f"Successfully processed {len(dataset_steam)} games")
